@@ -1,47 +1,94 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
+  import { ref } from "vue"
+
+  import ToDoItem from "./components/ToDoItem.vue";
+
+  const newTask = ref<string>("");
+
+  const tasks = ref([
+    {
+      id: 1,
+      task: "Atividade",
+      done: true,
+      date: new Date()
+    }
+  ]);
+
+  function addTask(){
+    tasks.value.push({
+      id: tasks.value.length,
+      task: newTask.value,
+      done: false,
+      date: new Date()
+    })
+
+    console.log(tasks)
+  }
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-    </div>
-  </header>
-
-  <main>
-    <TheWelcome />
-  </main>
+  <div class="container">
+      <h1>To-Do List</h1>
+      <div class="form">
+        <input type="text" v-model="newTask" placeholder="O que você quer fazer?">
+        <button type="button" @click="addTask">Create</button>
+      </div> 
+      <div v-for="(task, index) in tasks">
+        <ToDoItem :task="task.task" :key="index"/>
+      </div> 
+  </div>
+  
 </template>
 
 <style scoped>
-header {
-  line-height: 1.5;
-}
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-@media (min-width: 1024px) {
-  header {
+  .container{
     display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
+    align-items: center;
+    flex-direction: column;
+    margin: 5rem auto;
   }
 
-  .logo {
-    margin: 0 2rem 0 0;
-  }
+  h1{
+      font-family: "Ubuntu", sans-serif;
+      font-weight: bold;
+      font-style: normal;
+      font-size: 4rem;
+      margin-bottom: 1.5rem;
+    }
 
-  header .wrapper {
+  .form{
     display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
+    justify-content: space-around;
+    width: 30%;
+    margin-bottom: 5rem;
+
+    input{
+      width: 85%;
+      height: 2.5rem;
+      margin: 0 1rem;
+      padding: 0.5rem;
+      border-radius: 5px;
+      font-family: "Roboto", sans-serif;
+      font-size: 1rem;
+    }
+
+    button{
+      background-color: #FFC300;
+      border-radius: 100px;
+      border: none;
+      width: 5.2rem;
+      height: 2.6rem;
+      cursor: pointer;
+      color: #381E72;
+      font-family: "Roboto", sans-serif;
+      font-weight: bold;
+      font-style: normal;
+      font-size: 1rem;
+    }
+
+    button:hover{
+      background-color: rgba(255, 196, 0, 0.655);
+    }
   }
-}
 </style>
