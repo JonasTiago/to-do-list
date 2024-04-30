@@ -10,8 +10,7 @@
       id: number;
       task: string;
       done: boolean;
-      edit:boolean;
-      date: Date;
+      noEdit:boolean;
   }
 
   const tasks = ref<Task[]>([
@@ -19,67 +18,60 @@
     id: 1,
     task: "Estudar Vue.js",
     done: false,
-    edit:true,
-    date: new Date()
+    noEdit:true,
   },
   {
     id: 2,
-    task: "Trabalhar",
-    done: true,
-    edit:true,
-    date: new Date()
+    task: "Listar tarefas",
+    done: false,
+    noEdit:true,
   },
   {
     id: 3,
-    task: "Dormir",
+    task: "Adicionar tarefas",
     done: false,
-    edit:true,
-    date: new Date()
+    noEdit:true,
   },
   {
     id: 4,
-    task: "Comer",
+    task: "Excluir tarefa",
     done: false,
-    edit:true,
-    date: new Date()
-  },{
-    id: 4,
-    task: "Comer",
-    done: false,
-    edit:true,
-    date: new Date()
-  },
+    noEdit:true,
+  }
   ]);
 
   const newTask = ref<string>("");
   const editTaskValue = ref<string>("")
   const countTask = ref<number>(tasks.value.length)
+  const countTaskOk = ref<number>(tasks.value.filter(task => task.done === false).length)
 
   function addTask(){
-    console.log(newTask.value)
     if(newTask.value.length > 0){
       tasks.value.push({
         id: tasks.value.length+1,
         task: newTask.value,
         done: false,
-        edit:true,
-        date: new Date()
-    })
-    countTask.value++
-
-    newTask.value = "";
-
+        noEdit:true,
+      })
+      countTask.value++
+      
+      
+      newTask.value = "";
+      
     }
   }
 
   function deleteTask(index:number){
     tasks.value.splice(index,1);
     countTask.value--
+    countTaskOk.value = tasks.value.filter(task => task.done === false).length
   }
 
   function toggleDone(index: number) {
     const task = tasks.value[index];
     task.done = !task.done;
+    task.noEdit = true;
+    countTaskOk.value = tasks.value.filter(task => task.done === false).length
   }
 
   function editTask(index: number){
@@ -87,14 +79,18 @@
     const task = tasks.value[index];
 
     if(!task.done) {
-        if(!task.edit && editTaskValue.value.length>0){
+
+      if(!task.noEdit && editTaskValue.value.length>0){
           task.task = editTaskValue.value;
           editTaskValue.value = ""
+        }else{
+          const editTaskOn = tasks.value.filter(tasks => tasks.noEdit == false)[0]
+          if(editTaskOn) editTaskOn.noEdit = true;
         }
 
         editTaskValue.value = task.task;
 
-      task.edit = !task.edit;
+        task.noEdit = !task.noEdit;
     }
 
    
@@ -110,17 +106,22 @@
         <InputForm v-model:value="newTask" placeholder="O que você quer fazer?"/>
         <ButtonForm name="Create" @click="addTask"/>
       </div> 
-      <div v-for="(task, index) in tasks" class="todolist">
+      <div class="todo-list">
+        <div v-for="(task, index) in tasks" >
         <ToDoItem v-bind="task" :key="task.id" :toggleDone="toggleDone" :index="index">
           <ButtonToDo icon="pi pi-pen-to-square" color="#4147D5"  @click="editTask(index)"/>
           <ButtonToDo icon="pi pi-trash" color="#D62828" @click="deleteTask(index)"/>
         </ToDoItem> 
-        <div class="edition" :class="{  none:task.edit }">
+        <div class="edition" :class="{  none:task.noEdit }">
           <InputForm v-model:value="editTaskValue" />
           <ButtonForm name="Edit" @click="editTask(index)"/>
         </div>
       </div> 
-      <p class="count">You have {{ countTask }} task{{ countTask > 1 ? "s" : ""}} to do</p>
+      </div>
+      
+      <p v-if="countTask" class="countTask">Você tem {{ countTaskOk }} - {{ countTask }} 
+        {{ countTask > 1 ? "tarefas" : "tarefa"}} para fazer </p>
+      <p v-else class="noTask">Crie novas tarefas!!!</p>
   </div>
   
 </template>
@@ -139,18 +140,28 @@
       font-weight: bold;
       font-style: normal;
       font-size: 3rem;
-      margin-bottom: 1.5rem;
+      position: fixed;
+      top: 1.5rem;
   }
 
-  .todolist{
+  .todo-list{
     width: 40%;
+    max-height: 65vh;
+    overflow-y: scroll;
+    position: fixed;
+    top: 10rem;
+  }
+
+  .todo-list::-webkit-scrollbar {
+    display: none;
   }
   
   .form{ 
     display: flex;
     justify-content: space-around;
     width: 40%;
-    margin-bottom: 2rem;
+    position: fixed;
+    top: 6rem;
   }
 
   .edition{
@@ -163,7 +174,7 @@
     display: none;
   }
 
-  .count{
+  .countTask{
     font-family: "Ubuntu", sans-serif;
       font-weight: bold;
       font-style: normal;
@@ -171,6 +182,16 @@
       margin: 1.5rem;
       position: fixed;
       bottom: 0;
+  }
+
+  .noTask{
+    font-family: "Ubuntu", sans-serif;
+      font-weight: bold;
+      font-style: normal;
+      font-size: 2rem;
+      margin: 1.5rem;
+      position: fixed;
+      bottom: 50vh;
   }
 
 </style>

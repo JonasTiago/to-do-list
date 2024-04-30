@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import { defineProps, ref } from 'vue';
+    import { ref } from 'vue';
 
     const props = defineProps<{
         id: number;
@@ -43,15 +43,18 @@
 
         div{
             display: flex;
+            align-items: center;
             gap: 0.5rem;
         }   
     }
 
-    p{
+    p{  
         font-family: "Ubuntu", sans-serif;
         font-weight: 400;
         font-style: normal;
         font-size: 0.6;
+        line-height: 1.5;
+        text-overflow: ellipsis;
     }
 
     input[type="checkbox"]{

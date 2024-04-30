@@ -1,5 +1,6 @@
 <script setup lang="ts">
-    import 'primeicons/primeicons.css'
+    import 'primeicons/primeicons.css';
+    
     const props = defineProps<{
         icon: string;
         color: string;

@@ -8,7 +8,12 @@
 
 
 <template>
-    <input type="text" v-model="value" :placeholder="placeholder" >
+    <input 
+    type="text" 
+    v-model="value" 
+    :placeholder="placeholder"
+    maxlength="65"
+     >
 </template>
 
 <style scoped>
