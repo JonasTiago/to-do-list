@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { ref } from "vue"
+  import { ref, computed } from "vue"
 
   import ButtonForm from "./components/form/ButtonForm.vue"
   import InputForm from "./components/form/InputForm.vue"
@@ -10,7 +10,7 @@
       id: number;
       task: string;
       done: boolean;
-      noEdit:boolean;
+      selectEdit:boolean;
   }
 
   const tasks = ref<Task[]>([
@@ -18,60 +18,53 @@
     id: 1,
     task: "Estudar Vue.js",
     done: false,
-    noEdit:true,
+    selectEdit:false,
   },
   {
     id: 2,
     task: "Listar tarefas",
     done: false,
-    noEdit:true,
+    selectEdit:false,
   },
   {
     id: 3,
     task: "Adicionar tarefas",
     done: false,
-    noEdit:true,
+    selectEdit:false,
   },
   {
     id: 4,
     task: "Excluir tarefa",
     done: false,
-    noEdit:true,
+    selectEdit:false,
   }
   ]);
 
-  const newTask = ref<string>("");
-  const editTaskValue = ref<string>("")
-  const countTask = ref<number>(tasks.value.length)
-  const countTaskOk = ref<number>(tasks.value.filter(task => task.done === false).length)
+  const inputNewTask = ref<string>("");
+  const inputTaskEdit = ref<string>("")
 
   function addTask(){
-    if(newTask.value.length > 0){
+
+    if(inputNewTask.value.length > 0){
       tasks.value.push({
         id: tasks.value.length+1,
-        task: newTask.value,
+        task: inputNewTask.value,
         done: false,
-        noEdit:true,
+        selectEdit:false,
       })
-      countTask.value++
-      
-      
-      newTask.value = "";
-      
+      inputNewTask.value = "";  
     }
+      
   }
-
+  
   function deleteTask(index:number){
-    tasks.value.splice(index,1);
-    countTask.value--
-    countTaskOk.value = tasks.value.filter(task => task.done === false).length
+    tasks.value.splice(index, 1);
   }
 
   function toggleDone(index: number) {
     const task = tasks.value[index];
     task.done = !task.done;
-    task.noEdit = true;
-    countTaskOk.value = tasks.value.filter(task => task.done === false).length
+    task.selectEdit = false;
   }
 
   function editTask(index: number){
@@ -80,47 +73,71 @@
 
     if(!task.done) {
 
-      if(!task.noEdit && editTaskValue.value.length>0){
-          task.task = editTaskValue.value;
-          editTaskValue.value = ""
-        }else{
-          const editTaskOn = tasks.value.filter(tasks => tasks.noEdit == false)[0]
-          if(editTaskOn) editTaskOn.noEdit = true;
-        }
+      if(task.selectEdit){
+          task.task = inputTaskEdit.value;
+          inputTaskEdit.value = ""
+      } 
+      else {
+          const editTaskOn = tasks.value.filter(tasks => tasks.selectEdit)[0]
+          if(editTaskOn) editTaskOn.selectEdit = false;
+          inputTaskEdit.value = task.task;
+      }
 
-        editTaskValue.value = task.task;
 
-        task.noEdit = !task.noEdit;
+      task.selectEdit = !task.selectEdit;
     }
 
-   
-    
   }
+
+  const countTask = computed(() => {
+    return {
+      total: tasks.value.length,
+      done: tasks.value.filter(task => !task.done).length,
+    }
+  })
+
+  defineEmits<{
+    change: [index: number] 
+  }>()
   
 </script>
 
 <template>
   <div class="container">
       <h1>To-Do List</h1>
+
       <div class="form">
-        <InputForm v-model:value="newTask" placeholder="O que você quer fazer?"/>
+        <InputForm v-model:value="inputNewTask" placeholder="O que você quer fazer?"/>
         <ButtonForm name="Create" @click="addTask"/>
       </div> 
+      
       <div class="todo-list">
         <div v-for="(task, index) in tasks" >
-        <ToDoItem v-bind="task" :key="task.id" :toggleDone="toggleDone" :index="index">
-          <ButtonToDo icon="pi pi-pen-to-square" color="#4147D5"  @click="editTask(index)"/>
+        <ToDoItem 
+          v-bind="task" 
+          :key="task.id"
+          @change="toggleDone(index)"
+        >
+          <ButtonToDo 
+            icon="pi pi-pen-to-square" 
+            color="#4147D5"  
+            @click="editTask(index)"
+            />
           <ButtonToDo icon="pi pi-trash" color="#D62828" @click="deleteTask(index)"/>
         </ToDoItem> 
-        <div class="edition" :class="{  none:task.noEdit }">
-          <InputForm v-model:value="editTaskValue" />
+        <div class="edition" :class="{  none:!task.selectEdit }">
+          <InputForm v-model:value="inputTaskEdit"/>
           <ButtonForm name="Edit" @click="editTask(index)"/>
         </div>
       </div> 
       </div>
       
-      <p v-if="countTask" class="countTask">Você tem {{ countTaskOk }} - {{ countTask }} 
-        {{ countTask > 1 ? "tarefas" : "tarefa"}} para fazer </p>
+      <p 
+        v-if="countTask.total > 0" 
+        class="countTask">
+        Você tem {{ countTask.done }} - {{ countTask.total }} 
+        {{ countTask.total > 1 ? "tarefas" : "tarefa"}} para fazer 
+      </p>
       <p v-else class="noTask">Crie novas tarefas!!!</p>
   </div>
   

@@ -1,7 +1,7 @@
 <script setup lang="ts">
     import 'primeicons/primeicons.css';
     
-    const props = defineProps<{
+    defineProps<{
         icon: string;
         color: string;
         }>();
@@ -9,7 +9,7 @@
 
 <template>
     <button>
-        <i :class="props.icon" :style="{ 'color': props.color }"></i>
+        <i :class="icon" :style="{ 'color': color }"></i>
     </button>
 </template>
 

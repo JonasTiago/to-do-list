@@ -1,30 +1,39 @@
 <script setup lang="ts">
-    import { ref } from 'vue';
+    import { ref, defineProps } from 'vue';
 
     const props = defineProps<{
         id: number;
         task: string;
         done: boolean;
-        toggleDone: Function;
-        index: number;
+        selectEdit: boolean;
     }>();
 
-    const doneAlt = ref<boolean>(props.done)
+    const alterTask = ref<{
+        done:boolean
+    }>({
+        done: props.done
+    });
+
+    const emit = defineEmits(['change']);
     
+    const emitirEvento = () => {
+        emit('change');
+    };
+
 </script>
 
 <template>
     <div class="item">
         <div>
-            <input type="checkbox" 
-                v-model="doneAlt"
-                @click="toggleDone(index)"
+            <input 
+                type="checkbox" 
+                v-model="alterTask.done"
+                @click="emitirEvento"
             >
-            <p v-if="doneAlt" class="doneTrue">{{ task }}</p>
-            <p v-else>{{ task }}</p>
+            <p :class="{ doneTrue : alterTask.done }">{{ task }}</p>
         </div>
         <div>
-            <slot />
+            <slot ></slot>
         </div>
     </div>
 </template>
@@ -60,8 +69,7 @@
     input[type="checkbox"]{
             width: 1rem;
             height: 1rem;
-        }
-
+    }
     .doneTrue{
         text-decoration: line-through;
         color: #fefefe93;
